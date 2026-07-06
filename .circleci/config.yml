@@ -13,10 +13,29 @@ jobs:
           command: ls -la
 
       - run:
-          name: Run Build Script
+          name: Build
           command: |
             chmod +x scripts/build.sh
             ./scripts/build.sh
+
+      - run:
+          name: Test
+          command: |
+            chmod +x scripts/test.sh
+            ./scripts/test.sh
+
+      - run:
+          name: Security Scan
+          command: |
+            chmod +x scripts/security.sh
+            ./scripts/security.sh
+
+      - setup_remote_docker
+
+      - run:
+          name: Docker Build
+          command: |
+            docker build -t circleci-demo .
 
 workflows:
   version: 2
