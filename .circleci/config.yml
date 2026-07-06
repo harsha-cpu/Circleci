@@ -3,39 +3,22 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/dotnet:8.0
 
     steps:
       - checkout
 
       - run:
-          name: Show Files
-          command: ls -la
+          name: Restore Dependencies
+          command: dotnet restore src/SampleApi/SampleApi.csproj
 
       - run:
-          name: Build
-          command: |
-            chmod +x scripts/build.sh
-            ./scripts/build.sh
+          name: Build Application
+          command: dotnet build src/SampleApi/SampleApi.csproj --no-restore
 
       - run:
-          name: Test
-          command: |
-            chmod +x scripts/test.sh
-            ./scripts/test.sh
-
-      - run:
-          name: Security Scan
-          command: |
-            chmod +x scripts/security.sh
-            ./scripts/security.sh
-
-      - setup_remote_docker
-
-      - run:
-          name: Docker Build
-          command: |
-            docker build -t circleci-demo .
+          name: Run Unit Tests
+          command: dotnet test tests/SampleApi.Tests/SampleApi.Tests.csproj --no-build
 
 workflows:
   version: 2
