@@ -27,7 +27,9 @@ jobs:
           command: |
             dotnet test tests/SampleApi.Tests/SampleApi.Tests.csproj
 
-      
+      # Enable Remote Docker (ONLY ONCE)
+      - setup_remote_docker
+
       # Install Docker CLI
       - run:
           name: Install Docker CLI
@@ -35,12 +37,6 @@ jobs:
             apt-get update
             apt-get install -y docker.io
             docker --version
-
-      # Enable Remote Docker
-      - setup_remote_docker
-
-      # Enable Remote Docker
-      - setup_remote_docker
 
       # Build Docker Image
       - run:
@@ -59,7 +55,7 @@ jobs:
               gpg --dearmor -o /usr/share/keyrings/trivy.gpg
 
             echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" \
-            > /etc/apt/sources.list.d/trivy.list
+              | tee /etc/apt/sources.list.d/trivy.list
 
             apt-get update
             apt-get install -y trivy
@@ -74,7 +70,7 @@ jobs:
       - run:
           name: Install AWS CLI
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
             unzip -q awscliv2.zip
             ./aws/install
             aws --version
@@ -94,14 +90,14 @@ jobs:
           name: Tag Docker Image
           command: |
             docker tag sampleapi:v1 \
-            $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sampleapi:v1
+              $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sampleapi:v1
 
       # Push Docker Image
       - run:
           name: Push Docker Image to Amazon ECR
           command: |
             docker push \
-            $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sampleapi:v1
+              $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/sampleapi:v1
 
 workflows:
   version: 2
