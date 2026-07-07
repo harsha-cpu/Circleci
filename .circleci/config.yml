@@ -5,6 +5,9 @@ jobs:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:8.0
 
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+
     steps:
       # Checkout source code
       - checkout
