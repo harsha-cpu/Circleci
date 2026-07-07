@@ -6,19 +6,53 @@ jobs:
       - image: mcr.microsoft.com/dotnet/sdk:8.0
 
     steps:
+      # Checkout source code
       - checkout
 
+      # Restore NuGet packages
       - run:
           name: Restore Dependencies
-          command: dotnet restore src/SampleApi/SampleApi.csproj
+          command: |
+            dotnet restore src/SampleApi/SampleApi.csproj
 
+      # Build the application
       - run:
           name: Build Application
-          command: dotnet build src/SampleApi/SampleApi.csproj --no-restore
+          command: |
+            dotnet build src/SampleApi/SampleApi.csproj --no-restore
 
+      # Run unit tests
       - run:
           name: Run Unit Tests
-          command: dotnet test tests/SampleApi.Tests/SampleApi.Tests.csproj
+          command: |
+            dotnet test tests/SampleApi.Tests/SampleApi.Tests.csproj
+
+      # Enable Docker
+      - setup_remote_docker
+
+      # Build Docker image
+      - run:
+          name: Docker Build
+          command: |
+            docker build -t sampleapi:v1 .
+
+      # Install Trivy
+      - run:
+          name: Install Trivy
+          command: |
+            apt-get update
+            apt-get install -y wget gnupg lsb-release
+            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | \
+              gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+            echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/trivy.list
+            apt-get update
+            apt-get install -y trivy
+
+      # Scan Docker image
+      - run:
+          name: Trivy Security Scan
+          command: |
+            trivy image --severity HIGH,CRITICAL sampleapi:v1
 
 workflows:
   version: 2
