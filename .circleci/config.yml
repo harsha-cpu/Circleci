@@ -30,6 +30,13 @@ jobs:
       # Enable Docker
       - setup_remote_docker
 
+      # Install Docker CLI (not included in dotnet/sdk image)
+      - run:
+          name: Install Docker CLI
+          command: |
+            apt-get update -qq
+            apt-get install -y docker.io
+
       # Build Docker image
       - run:
           name: Docker Build
