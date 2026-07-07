@@ -27,6 +27,7 @@ jobs:
           command: |
             dotnet test tests/SampleApi.Tests/SampleApi.Tests.csproj
 
+      
       # Install Docker CLI
       - run:
           name: Install Docker CLI
@@ -34,6 +35,9 @@ jobs:
             apt-get update
             apt-get install -y docker.io
             docker --version
+
+      # Enable Remote Docker
+      - setup_remote_docker
 
       # Enable Remote Docker
       - setup_remote_docker
