@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  aws-ecr: circleci/aws-ecr@9.3
+
 jobs:
   build:
     docker:
@@ -76,14 +79,9 @@ jobs:
             aws --version
 
       # Login to Amazon ECR
-      - run:
-          name: Login to Amazon ECR
-          command: |
-            aws ecr get-login-password --region $AWS_DEFAULT_REGION | \
-            docker login \
-              --username AWS \
-              --password-stdin \
-              $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - aws-ecr/ecr-login:
+          region: AWS_DEFAULT_REGION
+          account-id: AWS_ACCOUNT_ID
 
       # Tag Docker Image
       - run:
